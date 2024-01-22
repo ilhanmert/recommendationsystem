@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ana Sayfa</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!-- Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/homepage/admin">Ana Sayfa</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/product/create">Ürün Ekle</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/product/delete">Ürün Sil</a>
+            </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/user/logout">Çıkış Yap</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div id="productCards">
+        <!-- Ürün Kartları Burada Oluşturulacak -->
+    </div>
+    <button class="btn btn-primary my-2" id="addCardButton">+</button>
+    <button class="btn btn-danger my-2" id="removeCardButton">-</button>
+    <button class="btn btn-success" id="submitProductsButton">Ekle</button>
+</div>
+
+<!-- Ürün Kartı Şablonu -->
+<template id="productCardTemplate">
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="form-group">
+                <input type="text" class="form-control productName" placeholder="Ürün Adı">
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control featureName" placeholder="Özellik Adı">
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control featureValue" placeholder="Özellik Değeri">
+            </div>
+            <div class="form-group">
+                <input type="number" class="form-control featurePoint" placeholder="Özellik Puanı">
+            </div>
+            <div class="form-group">
+                <input type="number" class="form-control salesAmount" placeholder="Satış Miktarı">
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+        $(document).ready(function() {
+            // Kart ekleme butonu işlevselliği
+            $('#addCardButton').click(function() {
+                var template = $('#productCardTemplate').html();
+                $('#productCards').append(template);
+            });
+
+            // Kart silme butonu işlevselliği
+            $('#removeCardButton').click(function() {
+                $('#productCards .card').last().remove();
+            });
+
+            // Ürünleri gönderme butonu işlevselliği
+            $('#submitProductsButton').click(function() {
+                var products = [];
+                $('#productCards .card').each(function() {
+                    var productName = $(this).find('.productName').val();
+                    var featureName = $(this).find('.featureName').val();
+                    var featureValue = $(this).find('.featureValue').val();
+                    var featurePoint = $(this).find('.featurePoint').val();
+                    var salesAmount = $(this).find('.salesAmount').val();
+                    products.push({
+                        productName: productName,
+                        featureName: featureName,
+                        featureValue: featureValue,
+                        featurePoint: featurePoint,
+                        salesAmount: salesAmount
+                    });
+                });
+
+                // AJAX ile ürünleri gönder
+                $.ajax({
+                    url: '/product/create-products', // Controller URL
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(products),
+                    success: function(response) {
+                        // Sayfayı yenile
+                        window.location.reload();
+                    },
+                    error: function(error) {
+                        // Hata işleme
+                        console.log(error);
+                    }
+                });
+            });
+
+            // İlk kartı otomatik olarak ekle
+            $('#addCardButton').click();
+        });
+    </script>
+</body>
+</html>
